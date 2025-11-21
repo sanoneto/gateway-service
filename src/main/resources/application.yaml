@@ -14,13 +14,13 @@ spring:
           routes:
             # ROTA 1: AUTH SERVICE (PÚBLICA)
             - id: auth-service
-              uri: '${URI_AUTH_SERVICE:http://localhost:8081}' # <-- Aspas adicionadas
+              uri: "${URI_AUTH_SERVICE:http://localhost:8081}" # <-- Aspas adicionadas
               predicates:
                 - Path=/api/auth/**
 
             # ROTA 2: MAIL SERVICE (PROTEGIDA)
             - id: mail-service
-              uri: '${URI_MAIL_SERVICE:http://localhost:8082}' # <-- Aspas adicionadas
+              uri: "${URI_MAIL_SERVICE:http://localhost:8082}" # <-- Aspas adicionadas
               predicates:
                 - Path=/api/email/**
               filters:
@@ -28,8 +28,8 @@ spring:
 
             # ROTA 3: REGISTO HORAS SERVICE (PROTEGIDA)
             - id: registo-horas-service
-              # 🔑 CORREÇÃO CHAVE AQUI: Envolver o placeholder com aspas.
-              uri: '${URI_REGISTO_HORAS:http://localhost:8083}'
+              #  CORREÇÃO CHAVE AQUI: Envolver o placeholder com aspas.
+              uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
                 - Path=/actuator/**, /api/registos/**, /api-docs/**
               filters:
