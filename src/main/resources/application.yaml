@@ -13,34 +13,26 @@ spring:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
           routes:
             # ROTA 1: AUTH SERVICE (PÚBLICA)
-            - id: auth-service # Recuo consistente em toda a lista de rotas
-              # Assumindo que o Auth Service roda na porta 8080
-              uri: ${URI_AUTH_SERVICE:http://localhost:8081}
+            - id: auth-service
+              uri: '${URI_AUTH_SERVICE:http://localhost:8081}' # <-- Aspas adicionadas
               predicates:
-                # Roteia tudo que começa com /auth/
                 - Path=/api/auth/**
-              # NENHUM FILTRO JWT AQUI (Login/Registro são públicos)
 
             # ROTA 2: MAIL SERVICE (PROTEGIDA)
             - id: mail-service
-              # Assumindo que o Mail Service roda na porta 8081
-              uri: ${URI_MAIL_SERVICE:http://localhost:8082}
+              uri: '${URI_MAIL_SERVICE:http://localhost:8082}' # <-- Aspas adicionadas
               predicates:
-                # Roteia tudo que começa com /mail/
                 - Path=/api/email/**
               filters:
-                # Aplica o filtro customizado
                 - JwtAuthFilter
 
             # ROTA 3: REGISTO HORAS SERVICE (PROTEGIDA)
             - id: registo-horas-service
-              # Assumindo que o Registo Horas Service roda na porta 8082
-              uri: ${URI_REGISTO_HORAS:http://localhost:8083}
+              # 🔑 CORREÇÃO CHAVE AQUI: Envolver o placeholder com aspas.
+              uri: '${URI_REGISTO_HORAS:http://localhost:8083}'
               predicates:
-                # Roteia tudo que começa com /registos/ ou /api/registos/
                 - Path=/actuator/**, /api/registos/**, /api-docs/**
               filters:
-                # Aplica o filtro customizado
                 - JwtAuthFilter
 
 jwt:
