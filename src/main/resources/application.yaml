@@ -1,0 +1,48 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # Filtros globais (opcional)
+          default-filters:
+            - AddResponseHeader=X-Gateway, RegistoHorasGateway
+          routes:
+            # ROTA 1: AUTH SERVICE (PÚBLICA)
+                    - id: auth-service
+                      # Assumindo que o Auth Service roda na porta 8080
+                      uri: http://localhost:8081
+                      predicates:
+                        # Roteia tudo que começa com /auth/
+                        - Path=/api/auth/**
+                      # NENHUM FILTRO JWT AQUI (Login/Registro são públicos)
+
+                    # ROTA 2: MAIL SERVICE (PROTEGIDA)
+                    - id: mail-service
+                      # Assumindo que o Mail Service roda na porta 8081
+                      uri: http://localhost:8082
+                      predicates:
+                        # Roteia tudo que começa com /mail/
+                        - Path=/api/email/**
+                      filters:
+                        # Aplica o filtro customizado
+                        - JwtAuthFilter
+
+                    # ROTA 3: REGISTO HORAS SERVICE (PROTEGIDA)
+                    - id: registo-horas-service
+                      # Assumindo que o Registo Horas Service roda na porta 8082
+                      uri: http://localhost:8083
+                      predicates:
+                        # Roteia tudo que começa com /registos/ ou /api/registos/
+                        - Path=/actuator/**, /api/registos/**, /api-docs/**
+                      filters:
+                        # Aplica o filtro customizado
+                        - JwtAuthFilter
+
+jwt:
+  secret: chave-principal-aneto-registo-horas-seguranca-2025-api-gateway
+  expiration: ${JWT_EXPIRATION:86400000}  # 24h em ms
