@@ -5,6 +5,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 // language: java
 @Configuration
 @EnableWebFluxSecurity
@@ -13,19 +21,42 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+        http
+                // CONFIGURAÇÃO CORS PARA RESOLVER 'Failed to fetch'
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 🔑 CORREÇÃO PARA RESOLVER O ERRO 'Cannot resolve symbol'
+                .csrf(ServerHttpSecurity.CsrfSpec::disable) // Usa a sintaxe Lambda mais segura e clara
+
                 .authorizeExchange(exchanges -> exchanges
                         // Rota 1: Permite Auth (login/registo)
                         .pathMatchers("/api/auth/**").permitAll()
 
                         // Rota 2: Permite todas as rotas da API.
-                        // A segurança será aplicada via application.yml (JwtAuthFilter)
                         .pathMatchers("/api/**").permitAll()
 
-                        // Apenas endpoints que realmente não têm filtros de gateway devem ser bloqueados aqui
-                        .anyExchange().authenticated() // Mantenha esta linha para garantir que nenhum endpoint é esquecido, mas será ignorada para /api/**
+                        .anyExchange().authenticated()
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Lembre-se de verificar e ajustar a porta do seu React aqui
+        configuration.setAllowedOrigins(List.of("http://localhost:5173",
+                "https://treg-app.vercel.app",
+                "https://front-end-three-self.vercel.app"));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-User-Roles", "X-User-Id"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // 1 hora
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
