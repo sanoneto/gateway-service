@@ -34,7 +34,6 @@ spring:
                 - Path=/actuator/**, /api/**, /api-docs/**
               filters:
                 - JwtAuthFilter
-
 jwt:
-  secret: chave-principal-aneto-registo-horas-seguranca-2025-api-gateway
-  expiration: ${JWT_EXPIRATION:86400000} # 24h em ms
+  secret: ${JWT_SECRET:chave-principal-aneto-registo-horas-seguranca-2025-api-gateway}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24h em ms
