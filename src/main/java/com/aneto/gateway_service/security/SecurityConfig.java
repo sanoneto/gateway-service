@@ -1,5 +1,6 @@
 package com.aneto.gateway_service.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -10,13 +11,15 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 // language: java
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+    @Value("${app.security.cors.allowed-origins}")
+    private List<String> allowedOrigins;
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -46,16 +49,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // // Se o seu React roda em http://localhost:5173, use esse valor.
-        configuration.setAllowedOrigins(List.of("http://localhost:5173",
-                "https://treg-app.vercel.app",
-                "https://front-end-three-self.vercel.app"));
-        // 2. MÉTODOS HTTP PERMITIDOS (GET, POST, PUT, DELETE, etc.)
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        // 3. HEADERS PERMITIDOS (Importante para o JWT e Content-Type)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-User-Roles", "X-User-Id"));
-       // ou permitir todos so Header
-       // configuration.setAllowedHeaders(List.of("*"));
-        // 4. PERMITIR CREDENCIAIS (Necessário se estiver a enviar cookies ou tokens no pedido)
         configuration.setAllowCredentials(true);
         // 5. MÁXIMO DE IDADE (Cache dos cabeçalhos CORS)
         configuration.setMaxAge(3600L); // 1 hora

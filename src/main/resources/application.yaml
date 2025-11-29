@@ -1,6 +1,11 @@
 server:
   port: ${PORT:8085}
-
+app:
+  security:
+    cors:
+      allowed-origins: http://localhost:5173, https://treg-app.vercel.app, https://front-end-three-self.vercel.app
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+      allowed-headers: Authorization,Content-Type,X-User-Roles,X-User-Id
 spring:
   application:
     name: gateway-service
@@ -8,32 +13,44 @@ spring:
     gateway:
       server:
         webflux:
-          # Filtros globais (opcional)
-          default-filters: # A lista de filtros deve ser recuada após a chave
+          default-filters:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
           routes:
-            # ROTA 1: AUTH SERVICE (PÚBLICA)
-            - id: auth-service
-              uri: "${URI_AUTH_SERVICE:http://localhost:8081}" # <-- Aspas adicionadas
+
+            # 🔑 ROTA 1: AUTH SERVICE (PÚBLICA - Sem Filtro JWT)
+            # Para endpoints de login, registo, e saúde.
+            - id: auth-service-public
+              uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
+                # Apenas /api/auth/** deve ser público para login/registo
                 - Path=/api/auth/**
 
-            # ROTA 2: MAIL SERVICE (PROTEGIDA)
+            # 🛡️ ROTA 2: AUTH SERVICE (PROTEGIDA - Com Filtro JWT)
+            # Para endpoints que exigem um token válido (como a rota de projetos).
+            - id: auth-service-protected
+              uri: "${URI_AUTH_SERVICE:http://localhost:8081}" # Aponta para o mesmo serviço
+              predicates:
+                # Adicione aqui o endpoint que precisa de proteção JWT
+                - Path=/api/v1/projects/** # <-- Esta rota é agora protegida
+              filters:
+                # Aplica o filtro JWT (JwtAuthFilter) para validar o token
+                - JwtAuthFilter # <-- Aplicação do filtro JWT
+
+            # ROTA 3: MAIL SERVICE (PROTEGIDA - Permanece Inalterada)
             - id: mail-service
-              uri: "${URI_MAIL_SERVICE:http://localhost:8082}" # <-- Aspas adicionadas
+              uri: "${URI_MAIL_SERVICE:http://localhost:8082}"
               predicates:
                 - Path=/api/email/**
               filters:
                 - JwtAuthFilter
 
-            # ROTA 3: REGISTO HORAS SERVICE (PROTEGIDA)
+            # ROTA 4: REGISTO HORAS SERVICE (PROTEGIDA - Permanece Inalterada)
             - id: registo-horas-service
-              #  CORREÇÃO CHAVE AQUI: Envolver o placeholder com aspas.
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                - Path=/actuator/**, /api/**, /api-docs/**
+                - Path=/actuator/**, /api/registos/**, /api-docs/**
               filters:
                 - JwtAuthFilter
 jwt:
   secret: ${JWT_SECRET:chave-principal-aneto-registo-horas-seguranca-2025-api-gateway}
-  expiration: ${JWT_EXPIRATION:86400000}  # 24h em ms
+  expiration: ${JWT_EXPIRATION:86400000} # 24h em ms
