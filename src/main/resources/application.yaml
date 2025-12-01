@@ -31,7 +31,7 @@ spring:
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}" # Aponta para o mesmo serviço
               predicates:
                 # Adicione aqui o endpoint que precisa de proteção JWT
-                - Path=/api/v1/projects/** # <-- Esta rota é agora protegida
+                - Path=/api/v1/projects/**, /api/v1/users/** # <-- Esta rota é agora protegida
               filters:
                 # Aplica o filtro JWT (JwtAuthFilter) para validar o token
                 - JwtAuthFilter # <-- Aplicação do filtro JWT

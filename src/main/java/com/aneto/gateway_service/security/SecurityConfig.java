@@ -21,6 +21,12 @@ public class SecurityConfig {
     @Value("${app.security.cors.allowed-origins}")
     private List<String> allowedOrigins;
 
+    @Value("${app.security.cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${app.security.cors.allowed-headers}")
+    private List<String> allowedHeaders;
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
@@ -50,8 +56,8 @@ public class SecurityConfig {
 
         // // Se o seu React roda em http://localhost:5173, use esse valor.
         configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-User-Roles", "X-User-Id"));
+        configuration.setAllowedMethods(allowedMethods);
+        configuration.setAllowedHeaders(allowedHeaders);
         configuration.setAllowCredentials(true);
         // 5. MÁXIMO DE IDADE (Cache dos cabeçalhos CORS)
         configuration.setMaxAge(3600L); // 1 hora

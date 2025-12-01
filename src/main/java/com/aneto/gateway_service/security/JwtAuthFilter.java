@@ -16,6 +16,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Config> {
@@ -33,48 +34,46 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
         LOGGER.info("JwtAuthFilter inicializado com JwtService injetado.");
     }
 
+    // Configuração vazia (necessária para AbstractGatewayFilterFactory)
     public static class Config {
-        // Exemplo: se precisar de configuração via application.yml
+        // Nada a configurar de momento
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
 
-            String authHeader = exchange.getRequest()
-                    .getHeaders()
-                    .getFirst(HttpHeaders.AUTHORIZATION);
-
-            if (!hasBearerToken(authHeader)) {
-                LOGGER.debug("Requisição sem token Bearer.");
-                return unauthorized(exchange, "Token ausente ou formato inválido.");
+            // 1. Verifica se tem o Header de Autorização
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                return this.onError(exchange, "Header de Autorização não encontrado.", HttpStatus.UNAUTHORIZED);
             }
 
-            String token = extractToken(authHeader);
-            // 1. Validação do JWT
-            if (!jwtService.isValid(token)) {
-                // O log de erro detalhado da falha (Signature/Expired) está dentro do JwtService
-                return unauthorized(exchange, "Token inválido ou expirado. Verifique logs do Gateway.");
+            // 2. Extrai e valida o Token
+            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            String token = null;
+
+            if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+                token = authHeader.substring(BEARER_PREFIX.length());
             }
 
-            // 2. Extrai claims e adiciona ao header
+            if (token == null || !jwtService.isValid(token)) {
+                return this.onError(exchange, "Token JWT inválido ou expirado.", HttpStatus.UNAUTHORIZED);
+            }
+
+            // 3. Extrai as Claims e adiciona os headers
             Claims claims = jwtService.extractAllClaims(token);
-            return chain.filter(addClaimsToHeaders(exchange, claims));
+            // Prossegue com a requisição, adicionando os Headers
+            ServerWebExchange mutatedExchange = addClaimsToHeaders(exchange, claims);
+
+            return chain.filter(mutatedExchange);
         };
     }
 
-    private boolean hasBearerToken(String authHeader) {
-        return authHeader != null && authHeader.startsWith(BEARER_PREFIX);
-    }
-
-    private String extractToken(String authHeader) {
-        return authHeader.substring(BEARER_PREFIX.length()).trim();
-    }
-
-    private Mono<Void> unauthorized(ServerWebExchange exchange, String reason) {
+    private Mono<Void> onError(ServerWebExchange exchange, String reason, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        // Opcional: Adicionar um body JSON ou header com o motivo do erro (Não é padrão no Spring Gateway)
+        response.setStatusCode(httpStatus);
+        // Adiciona um header com o motivo do erro (Não é padrão no Spring Gateway)
         response.getHeaders().add("X-Auth-Error", reason);
         return response.setComplete();
     }
@@ -89,14 +88,24 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
         String userId = claims.getSubject();
 
         // Obtém as Roles (o campo "roles" deve ser configurado na geração do token no Auth Service)
-        // O valor padrão de List.of("USER") é um fallback caso o campo não exista
         @SuppressWarnings("unchecked")
         List<String> rolesList = claims.get("roles", List.class);
-        String rolesHeader = rolesList != null ? String.join(",", rolesList) : "ESTAGIARIO";
+
+        // 🔑 CORREÇÃO CRÍTICA: Garantir que a Role tem o prefixo "ROLE_" (padrão do Spring Security)
+        List<String> prefixedRoles = (rolesList != null)
+                ? rolesList.stream()
+                .map(role -> role.toUpperCase().startsWith("ROLE_") ? role.toUpperCase() : "ROLE_" + role.toUpperCase())
+                .collect(Collectors.toList())
+                : List.of("ROLE_ESTAGIARIO"); // Fallback seguro (e com o prefixo)
+
+        String rolesHeader = String.join(",", prefixedRoles);
+        LOGGER.info("Roles enviadas para o serviço de destino: {}", rolesHeader);
+
 
         // Constrói uma nova requisição com os novos headers
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-Id", userId)
+                // ✅ Agora envia no formato correto (ROLE_ADMIN, ROLE_ESTAGIARIO, etc.)
                 .header("X-User-Roles", rolesHeader)
                 // Remove o token de autorização para segurança, se desejar (opcional)
                 .headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
