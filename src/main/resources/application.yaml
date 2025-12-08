@@ -48,9 +48,9 @@ spring:
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                - Path=/actuator/**, /api/registos/**, /api-docs/**
+                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**
               filters:
                 - JwtAuthFilter
 jwt:
   secret: ${JWT_SECRET:chave-principal-aneto-registo-horas-seguranca-2025-api-gateway}
-  expiration: ${JWT_EXPIRATION:86400000} # 24h em ms
+  expiration: ${JWRATION:86400000} # 24h em ms
