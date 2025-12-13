@@ -48,7 +48,7 @@ spring:
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**
+                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**, /api/auditoria/**, /api/historico/**,/api/upload-profile-pic
               filters:
                 - JwtAuthFilter
 jwt:
