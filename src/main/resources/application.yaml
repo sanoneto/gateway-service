@@ -1,5 +1,13 @@
 server:
   port: ${PORT:8085}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,beans
+  endpoint:
+    health:
+      show-details: always
 app:
   security:
     cors:
