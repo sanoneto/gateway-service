@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable) // Usa a sintaxe Lambda mais segura e clara
 
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         // Rota 1: Permite Auth (login/registo)
                         .pathMatchers("/api/auth/**").permitAll()
 

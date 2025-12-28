@@ -3,9 +3,9 @@ server:
 app:
   security:
     cors:
-      allowed-origins: http://localhost:5173, https://treg-app.vercel.app, https://front-end-three-self.vercel.app
-      allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
-      allowed-headers: Authorization,Content-Type,X-User-Roles,X-User-Id
+      allowed-origins: "http://localhost:5173,https://treg-app.vercel.app,https://front-end-three-self.vercel.app"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      allowed-headers: "Authorization,Content-Type,X-User-Roles,X-User-Id"
 spring:
   application:
     name: gateway-service
@@ -53,4 +53,3 @@ spring:
                 - JwtAuthFilter
 jwt:
   secret: ${JWT_SECRET:chave-principal-aneto-registo-horas-seguranca-2025-api-gateway}
-  expiration: ${JWRATION:86400000} # 24h em ms
