@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         // Rota 1: Permite Auth (login/registo)
                         .pathMatchers("/api/auth/**").permitAll()
-
+                        .pathMatchers("/actuator/**").permitAll()
                         // Rota 2: Permite todas as rotas da API.
                         .pathMatchers("/api/**").permitAll()
 
