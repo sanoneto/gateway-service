@@ -56,7 +56,8 @@ spring:
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**, /api/auditoria/**, /api/jogos/**, /api/historico/**, /api/upload-profile-pic, /api/v1/training/plan, /api/v1/**
+                # RECORTE: Removida a barra dupla de /api/v1//concertos para /api/v1/concertos
+                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**, /api/auditoria/**, /api/jogos/**, /api/historico/**, /api/upload-profile-pic, /api/v1/training/plan, /api/v1/concertos, /api/v1/**
               filters:
                 - JwtAuthFilter
 jwt:

@@ -52,19 +52,22 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
     public boolean isValid(String token) {
         try {
-            extractAllClaims(token);
+            // SEGURANÇA: Se a string não tiver o formato A.B.C, não é um JWT.
+            // Isso evita a Exception: "JWT strings must contain exactly 2 period characters"
+            if (token == null || token.chars().filter(ch -> ch == '.').count() != 2) {
+                LOGGER.error("Formato de token inválido (falta de pontos)");
+                return false;
+            }
+
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (SignatureException e) {
-            LOGGER.error("ERRO JWT (SIGNATURE): Assinatura inválida (Chave errada!).");
-            return false;
-        } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            LOGGER.error("ERRO JWT (EXPIRED): Token expirado.");
-            return false;
         } catch (Exception e) {
-            LOGGER.error("ERRO JWT (GERAL): Falha ao decodificar/validar o token: {}", e.getMessage());
+            LOGGER.error("Token inválido ou expirado: {}", e.getMessage());
             return false;
         }
     }
