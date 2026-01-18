@@ -42,7 +42,12 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            String path = request.getPath().toString();
 
+            // Isso permite que o /api/auth/google e /api/auth/login passem livremente
+            if (path.contains("/api/auth/")) {
+                return chain.filter(exchange);
+            }
             // 1. Verifica se tem o Header de Autorização
             if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return this.onError(exchange, "Header de Autorização não encontrado.", HttpStatus.UNAUTHORIZED);

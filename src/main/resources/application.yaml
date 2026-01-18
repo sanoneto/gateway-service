@@ -52,11 +52,18 @@ spring:
               filters:
                 - JwtAuthFilter
 
-            # ROTA 4: REGISTO HORAS SERVICE (PROTEGIDA - Permanece Inalterada)
+            # 🚨 NOVA ROTA: REGISTO HORAS SERVICE (PÚBLICA - Para Telegram/WebPush)
+            - id: registo-horas-public
+              uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
+              predicates:
+                # Esta rota específica não passará pelo JwtAuthFilter
+                - Path=/api/v1/eventos/*/confirmar-alerta
+                  # NOTA: Não incluímos o filtro JwtAuthFilter aqui
+
+            # ROTA 4: REGISTO HORAS SERVICE (PROTEGIDA - Original)
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                # RECORTE: Removida a barra dupla de /api/v1//concertos para /api/v1/concertos
                 - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**, /api/auditoria/**, /api/jogos/**, /api/historico/**, /api/upload-profile-pic, /api/v1/training/plan, /api/v1/concertos, /api/v1/**
               filters:
                 - JwtAuthFilter

@@ -29,20 +29,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-
         http
-                // CONFIGURAÇÃO CORS PARA RESOLVER 'Failed to fetch'
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // 🔑 CORREÇÃO PARA RESOLVER O ERRO 'Cannot resolve symbol'
-                .csrf(ServerHttpSecurity.CsrfSpec::disable) // Usa a sintaxe Lambda mais segura e clara
-
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        // Rota 1: Permite Auth (login/registo)
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
-                        // Rota 2: Permite todas as rotas da API.
+
+                        // 🚨 GARANTIR QUE ESTA ROTA ESPECÍFICA ESTÁ ABERTA PARA GET E POST
+                        .pathMatchers("/api/v1/eventos/*/confirmar-alerta").permitAll()
+
+                        // Se o resto da tua API exige login, aqui mudarias para .authenticated()
                         .pathMatchers("/api/**").permitAll()
 
                         .anyExchange().authenticated()
