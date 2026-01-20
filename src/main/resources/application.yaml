@@ -24,6 +24,13 @@ spring:
           default-filters:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
           routes:
+            # 🚨 NOVA ROTA: REGISTO HORAS SERVICE (PÚBLICA - Para Telegram/WebPush)
+            - id: registo-horas-public
+              uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
+              predicates:
+                # Esta rota específica não passará pelo JwtAuthFilter
+                - Path=/api/v1/eventos/{id}/confirmar-alerta
+                # NOTA: Não incluímos o filtro JwtAuthFilter aqui
 
             # 🔑 ROTA 1: AUTH SERVICE (PÚBLICA - Sem Filtro JWT)
             # Para endpoints de login, registo, e saúde.
@@ -51,15 +58,6 @@ spring:
                 - Path=/api/email/**
               filters:
                 - JwtAuthFilter
-
-            # 🚨 NOVA ROTA: REGISTO HORAS SERVICE (PÚBLICA - Para Telegram/WebPush)
-            - id: registo-horas-public
-              uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
-              predicates:
-                # Esta rota específica não passará pelo JwtAuthFilter
-                - Path=/api/v1/eventos/*/confirmar-alerta
-                  # NOTA: Não incluímos o filtro JwtAuthFilter aqui
-
             # ROTA 4: REGISTO HORAS SERVICE (PROTEGIDA - Original)
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"

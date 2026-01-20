@@ -44,8 +44,9 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getPath().toString();
 
-            // Isso permite que o /api/auth/google e /api/auth/login passem livremente
-            if (path.contains("/api/auth/")) {
+            // Verificação mais robusta para ignorar a segurança nesta rota
+            if (path.contains("/confirmar-alerta") || path.contains("/api/auth")) {
+                LOGGER.info("Rota pública detectada no Gateway: {}", path);
                 return chain.filter(exchange);
             }
             // 1. Verifica se tem o Header de Autorização

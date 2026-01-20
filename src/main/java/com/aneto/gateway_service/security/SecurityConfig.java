@@ -37,8 +37,9 @@ public class SecurityConfig {
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
 
-                        // 🚨 GARANTIR QUE ESTA ROTA ESPECÍFICA ESTÁ ABERTA PARA GET E POST
-                        .pathMatchers("/api/v1/eventos/*/confirmar-alerta").permitAll()
+                        // ✅ MUDANÇA: Use o padrão AntPath de dois asteriscos para evitar erros de segmento
+                        // No SecurityConfig.java
+                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/eventos/*/confirmar-alerta").permitAll()
 
                         // Se o resto da tua API exige login, aqui mudarias para .authenticated()
                         .pathMatchers("/api/**").permitAll()
