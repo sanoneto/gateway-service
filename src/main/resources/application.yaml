@@ -11,7 +11,7 @@ management:
 app:
   security:
     cors:
-      allowed-origins: "http://localhost:5173,https://treg-app.vercel.app,https://front-end-three-self.vercel.app,https://www.sanoneto.com"
+      allowed-origins: "http://localhost:5173,https://treg-app.vercel.app,https://www.sanoneto.com,http://treg-aneto.com:8085,http://treg-aneto.com"
       allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
       allowed-headers: "Authorization,Content-Type,X-User-Roles,X-User-Id,X-Google-Token"
 spring:
@@ -24,45 +24,42 @@ spring:
           default-filters:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
           routes:
-            # 🚨 NOVA ROTA: REGISTO HORAS SERVICE (PÚBLICA - Para Telegram/WebPush)
+            # 1. ROTA PÚBLICA (Deve ser a primeira para o Registo Horas)
             - id: registo-horas-public
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                # Esta rota específica não passará pelo JwtAuthFilter
+                # Removido o {id} e usado o padrão direto para evitar erro de parsing no log
                 - Path=/api/v1/eventos/{id}/confirmar-alerta
-                # NOTA: Não incluímos o filtro JwtAuthFilter aqui
+              # Sem JwtAuthFilter
 
-            # 🔑 ROTA 1: AUTH SERVICE (PÚBLICA - Sem Filtro JWT)
-            # Para endpoints de login, registo, e saúde.
+            # 2. AUTH SERVICE (PÚBLICO)
             - id: auth-service-public
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                # Apenas /api/auth/** deve ser público para login/registo
                 - Path=/api/auth/**, /api/admin/telegram/**
 
-            # 🛡️ ROTA 2: AUTH SERVICE (PROTEGIDA - Com Filtro JWT)
-            # Para endpoints que exigem um token válido (como a rota de projetos).
+            # 3. AUTH SERVICE (PROTEGIDO)
             - id: auth-service-protected
-              uri: "${URI_AUTH_SERVICE:http://localhost:8081}" # Aponta para o mesmo serviço
+              uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                # Adicione aqui o endpoint que precisa de proteção JWT
-                - Path=/api/v1/projects/**, /api/v1/users/** # <-- Esta rota é agora protegida
+                - Path=/api/v1/projects/**, /api/v1/users/**
               filters:
-                # Aplica o filtro JWT (JwtAuthFilter) para validar o token
-                - JwtAuthFilter # <-- Aplicação do filtro JWT
+                - JwtAuthFilter
 
-            # ROTA 3: MAIL SERVICE (PROTEGIDA - Permanece Inalterada)
+            # 4. MAIL SERVICE
             - id: mail-service
               uri: "${URI_MAIL_SERVICE:http://localhost:8082}"
               predicates:
                 - Path=/api/email/**
               filters:
                 - JwtAuthFilter
-            # ROTA 4: REGISTO HORAS SERVICE (PROTEGIDA - Original)
+
+            # 5. REGISTO HORAS SERVICE (PROTEGIDO - RESTANTE DA API)
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                - Path=/actuator/**, /api/registos/**, /api-docs/**, /api/ausencias/**, /api/auditoria/**, /api/jogos/**, /api/historico/**, /api/upload-profile-pic, /api/v1/training/plan, /api/v1/concertos, /api/v1/**
+                # Importante: Listamos caminhos específicos primeiro
+                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/plan/**, /api/v1/concertos/**, /api/v1/perfil/**
               filters:
                 - JwtAuthFilter
 jwt:
