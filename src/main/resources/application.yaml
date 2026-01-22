@@ -59,7 +59,7 @@ spring:
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
                 # Importante: Listamos caminhos específicos primeiro
-                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/plan/**, /api/v1/concertos/**, /api/v1/perfil/**
+                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/plan/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**
               filters:
                 - JwtAuthFilter
 jwt:
