@@ -113,7 +113,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                 // ✅ Agora envia no formato correto (ROLE_ADMIN, ROLE_ESTAGIARIO, etc.)
                 .header("X-User-Roles", rolesHeader)
                 // Remove o token de autorização para segurança, se desejar (opcional)
-                .headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
+                //.headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
                 .build();
 
         // Retorna um novo ServerWebExchange com a requisição modificada
