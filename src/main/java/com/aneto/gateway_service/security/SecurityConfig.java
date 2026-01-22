@@ -3,6 +3,7 @@ package com.aneto.gateway_service.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -10,7 +11,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 // language: java
@@ -39,7 +39,7 @@ public class SecurityConfig {
 
                         // ✅ MUDANÇA: Use o padrão AntPath de dois asteriscos para evitar erros de segmento
                         // No SecurityConfig.java
-                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/eventos/*/confirmar-alerta").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/eventos/{id}/confirmar-alerta").permitAll()
 
                         // Se o resto da tua API exige login, aqui mudarias para .authenticated()
                         .pathMatchers("/api/**").permitAll()
