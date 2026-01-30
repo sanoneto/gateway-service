@@ -36,13 +36,13 @@ spring:
             - id: auth-service-public
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                - Path=/api/auth/**, /api/admin/telegram/**
+                - Path=/api/auth/login, /api/auth/register, /api/auth/verify, /api/auth/google, /api/auth/facebook, /api/auth/recuperar-password, /api/auth/reset-password
 
             # 3. AUTH SERVICE (PROTEGIDO)
             - id: auth-service-protected
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                - Path=/api/v1/projects/**, /api/v1/users/**
+                - Path=/api/auth/mfa/**, /api/auth/users/**, /api/v1/projects/**
               filters:
                 - JwtAuthFilter
 
@@ -59,7 +59,7 @@ spring:
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
                 # Importante: Listamos caminhos específicos primeiro
-                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**
+                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses
               filters:
                 - JwtAuthFilter
 jwt:
