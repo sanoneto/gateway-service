@@ -23,6 +23,7 @@ spring:
         webflux:
           default-filters:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
+            - RemoveRequestHeader=Cookie
           routes:
             # 1. ROTA PÚBLICA (Deve ser a primeira para o Registo Horas)
             - id: registo-horas-public
@@ -42,7 +43,7 @@ spring:
             - id: auth-service-protected
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                - Path=/api/auth/mfa/**, /api/auth/users/**, /api/v1/projects/**
+                - Path=/api/auth/mfa-setup, /api/auth/mfa-activate,/api/auth/mfa-status, /api/auth/users/**, /api/v1/projects/**
               filters:
                 - JwtAuthFilter
 
