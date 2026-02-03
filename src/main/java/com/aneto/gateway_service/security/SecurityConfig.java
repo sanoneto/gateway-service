@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
-
+                        .pathMatchers("/socket.io/**").permitAll()
                         // ✅ MUDANÇA: Use o padrão AntPath de dois asteriscos para evitar erros de segmento
                         // No SecurityConfig.java
                         .pathMatchers(HttpMethod.GET, "/api/v1/eventos/{id}/confirmar-alerta").permitAll()
