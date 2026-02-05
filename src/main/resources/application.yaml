@@ -43,7 +43,7 @@ spring:
             - id: auth-service-protected
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                - Path=/api/auth/mfa-setup, /api/auth/mfa-activate,/api/auth/mfa-status, /api/auth/users/**, /api/v1/projects/**
+                - Path=/api/auth/mfa-setup, /api/auth/mfa-activate, /api/auth/mfa-status, /api/v1/profile, /api/auth/users/**, /api/v1/projects/**, /api/auth/desvincular-telegram/**, /api/auth/telegram-id/**
               filters:
                 - JwtAuthFilter
 
@@ -59,8 +59,7 @@ spring:
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                # Importante: Listamos caminhos específicos primeiro
-                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses
+              - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses
               filters:
                 - JwtAuthFilter
 jwt:
