@@ -45,7 +45,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
             String path = request.getPath().toString();
 
             // Verificação mais robusta para ignorar a segurança nesta rota
-            if (path.contains("/confirmar-alerta") || path.contains("/api/auth")) {
+            if (path.contains("/confirmar-alerta") || path.contains("/api/auth")|| path.contains("/actuator/health")) {
                 LOGGER.info("Rota pública detectada no Gateway: {}", path);
                 return chain.filter(exchange);
             }
