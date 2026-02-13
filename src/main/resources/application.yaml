@@ -51,7 +51,7 @@ spring:
             - id: mail-service
               uri: "${URI_MAIL_SERVICE:http://localhost:8082}"
               predicates:
-                - Path=/api/email/**
+                - Path=/api/email/**, /api/v1/admin/monitoring/**
               filters:
                 - JwtAuthFilter
 
