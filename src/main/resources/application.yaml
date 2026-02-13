@@ -51,7 +51,7 @@ spring:
             - id: mail-service
               uri: "${URI_MAIL_SERVICE:http://localhost:8082}"
               predicates:
-                - Path=/api/email/**, /api/v1/admin/monitoring/**
+                - Path=/api/email/**, /api/v1/admin/monitoring/email/**
               filters:
                 - JwtAuthFilter
 
@@ -59,7 +59,7 @@ spring:
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-              - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses, /api/v1/admin/monitoring/**, /api/admin/exercises/**, /api/precos-pt/**, /api/registros-treino/**
+              - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses, /api/v1/admin/monitoring/**, /api/admin/exercises/**, /api/precos-pt/**, /api/registros-treino/**, /api/planosPagamento/**
               filters:
                 - JwtAuthFilter
 jwt:
