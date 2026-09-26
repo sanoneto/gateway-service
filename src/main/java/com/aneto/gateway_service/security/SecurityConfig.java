@@ -10,7 +10,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 // language: java
@@ -38,6 +37,9 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable) // Usa a sintaxe Lambda mais segura e clara
 
                 .authorizeExchange(exchanges -> exchanges
+                        // Rota 0: Permite o healthcheck do Actuator (sem isso, o Coolify marca como unhealthy)
+                        .pathMatchers("/actuator/health", "/actuator/health/**").permitAll()
+
                         // Rota 1: Permite Auth (login/registo)
                         .pathMatchers("/api/auth/**").permitAll()
 
