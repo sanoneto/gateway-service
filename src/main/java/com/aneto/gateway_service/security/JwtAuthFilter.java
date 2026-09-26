@@ -4,6 +4,7 @@ import com.aneto.gateway_service.service.JwtService;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -42,13 +43,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
-            String path = request.getPath().toString();
 
-            // Verificação mais robusta para ignorar a segurança nesta rota
-            if (path.contains("/confirmar-alerta") || path.contains("/api/auth")|| path.contains("/actuator/health")) {
-                LOGGER.info("Rota pública detectada no Gateway: {}", path);
-                return chain.filter(exchange);
-            }
             // 1. Verifica se tem o Header de Autorização
             if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return this.onError(exchange, "Header de Autorização não encontrado.", HttpStatus.UNAUTHORIZED);
@@ -113,7 +108,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                 // ✅ Agora envia no formato correto (ROLE_ADMIN, ROLE_ESTAGIARIO, etc.)
                 .header("X-User-Roles", rolesHeader)
                 // Remove o token de autorização para segurança, se desejar (opcional)
-                //.headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
+                .headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
                 .build();
 
         // Retorna um novo ServerWebExchange com a requisição modificada
