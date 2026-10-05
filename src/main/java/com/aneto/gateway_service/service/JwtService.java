@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @Service
 public class JwtService {
@@ -29,7 +27,8 @@ public class JwtService {
     public JwtService() {
         LOGGER.info("JwtService criado. Aguardando injeção de propriedades...");
     }
-// Método executado APÓS a injeção de dependências
+
+    // Método executado APÓS a injeção de dependências
     @PostConstruct
     public void init() {
         LOGGER.info("JwtService INICIALIZADO. Lendo chave secreta...");

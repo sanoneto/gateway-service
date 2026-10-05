@@ -4,7 +4,6 @@ import com.aneto.gateway_service.service.JwtService;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -79,15 +78,15 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
     }
 
     /**
-     * Extrai o ID do usuário (subject) e as roles do JWT e adiciona-os
+     * Extrai o ‘ID’ do utilizador (subject) e as roles do JWT e adiciona-os
      * como headers no request para os serviços downstream.
      */
     private ServerWebExchange addClaimsToHeaders(ServerWebExchange exchange, Claims claims) {
 
-        // Obtém o Subject (SUB) como o ID/Username do usuário
+        // Obtém o Subject (SUB) como o ‘ID’/Username do utilizador
         String userId = claims.getSubject();
 
-        // Obtém as Roles (o campo "roles" deve ser configurado na geração do token no Auth Service)
+        // Obtém as Roles (o campo "roles" deve ser configurado na geração do ‘token’ no Auth Service)
         @SuppressWarnings("unchecked")
         List<String> rolesList = claims.get("roles", List.class);
 
@@ -96,7 +95,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                 ? rolesList.stream()
                 .map(role -> role.toUpperCase().startsWith("ROLE_") ? role.toUpperCase() : "ROLE_" + role.toUpperCase())
                 .collect(Collectors.toList())
-                : List.of("ROLE_ESTAGIARIO"); // Fallback seguro (e com o prefixo)
+                : List.of("ROLE_ESTAGIÁRIO"); // Fallback seguro (e com o prefixo)
 
         String rolesHeader = String.join(",", prefixedRoles);
         LOGGER.info("Roles enviadas para o serviço de destino: {}", rolesHeader);
@@ -105,9 +104,9 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
         // Constrói uma nova requisição com os novos headers
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-Id", userId)
-                // ✅ Agora envia no formato correto (ROLE_ADMIN, ROLE_ESTAGIARIO, etc.)
+                // ✅ Agora envia no formato correto (ROLE_ADMIN, ROLE_ESTAGIÁRIO, etc.)
                 .header("X-User-Roles", rolesHeader)
-                // Remove o token de autorização para segurança, se desejar (opcional)
+                // Remove o ‘token’ de autorização para segurança, se desejar (opcional)
                 .headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
                 .build();
 
