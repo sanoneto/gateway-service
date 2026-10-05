@@ -1,13 +1,15 @@
 server:
   port: ${PORT:8085}
 management:
+  server:
+    port: ${MANAGEMENT_PORT:8086}
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,env,beans
+        include: health
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
 app:
   security:
     cors:
@@ -29,7 +31,7 @@ spring:
             - id: registo-horas-public
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                # Removido o {id} e usado o padrão direto para evitar erro de parsing no log
+                # Removido o {‘id’} e usado o padrão direto para evitar erro de parsing no ‘log’
                 - Path=/api/v1/eventos/{id}/confirmar-alerta
               # Sem JwtAuthFilter
 
@@ -43,7 +45,7 @@ spring:
             - id: auth-service-protected
               uri: "${URI_AUTH_SERVICE:http://localhost:8081}"
               predicates:
-                - Path=/api/auth/mfa-setup, /api/auth/mfa-activate, /api/auth/mfa-status, /api/v1/profile, /api/auth/users/**, /api/v1/projects/**, /api/auth/desvincular-telegram/**, /api/auth/telegram-id/**
+                - Path=/api/auth/mfa-setup, /api/auth/mfa-activate, /api/auth/mfa-status, /api/v1/profile, /api/auth/users/**, /api/v1/projects/**, /api/auth/desvincular-telegram/**, /api/auth/telegram-id/**, /api/auth/logout/**, /api/admin/telegram/**
               filters:
                 - JwtAuthFilter
 
@@ -55,11 +57,11 @@ spring:
               filters:
                 - JwtAuthFilter
 
-            # 5. REGISTO HORAS SERVICE (PROTEGIDO - RESTANTE DA API)
+          # 5. REGISTO HORAS SERVICE (PROTEGIDO - RESTANTE DA API)
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-              - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses, /api/v1/admin/monitoring/**, /api/admin/exercises/**, /api/precos-pt/**, /api/registros-treino/**, /api/planosPagamento/**
+                - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses, /api/v1/admin/monitoring/**, /api/admin/exercises/**, /api/precos-pt/**, /api/registros-treino/**, /api/planosPagamento/**
               filters:
                 - JwtAuthFilter
 jwt:
