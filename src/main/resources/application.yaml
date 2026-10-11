@@ -1,5 +1,6 @@
 server:
   port: ${PORT:8085}
+
 management:
   server:
     port: ${MANAGEMENT_PORT:8086}
@@ -10,12 +11,14 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
 app:
   security:
     cors:
-      allowed-origins: "http://localhost:5173,https://treg-app.vercel.app,https://www.sanoneto.com,https://www.liveproact.com,http://treg-aneto.com:8085,http://treg-aneto.com"
+      allowed-origins: "http://localhost:5173,http://localhost:4173,https://treg-app.vercel.app,https://www.sanoneto.com,https://www.liveproact.com,http://treg-aneto.com:8085,http://treg-aneto.com"
       allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
       allowed-headers: "Authorization,Content-Type,X-User-Roles,X-User-Id,X-Google-Token"
+
 spring:
   application:
     name: gateway-service
@@ -27,13 +30,11 @@ spring:
             - AddResponseHeader=X-Gateway, RegistoHorasGateway
             - RemoveRequestHeader=Cookie
           routes:
-            # 1. ROTA PÚBLICA (Deve ser a primeira para o Registo Horas)
+            # 1. ROTA PÚBLICA (Registo Horas)
             - id: registo-horas-public
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
-                # Removido o {‘id’} e usado o padrão direto para evitar erro de parsing no ‘log’
                 - Path=/api/v1/eventos/{id}/confirmar-alerta
-              # Sem JwtAuthFilter
 
             # 2. AUTH SERVICE (PÚBLICO)
             - id: auth-service-public
@@ -57,12 +58,13 @@ spring:
               filters:
                 - JwtAuthFilter
 
-          # 5. REGISTO HORAS SERVICE (PROTEGIDO - RESTANTE DA API)
+            # 5. REGISTO HORAS SERVICE (PROTEGIDO)
             - id: registo-horas-service
               uri: "${URI_REGISTO_HORAS:http://localhost:8083}"
               predicates:
                 - Path=/api/registos/**, /api/ausencias/**, /api/v1/training/**, /api/v1/concertos/**, /api/v1/perfil/**, /api/v1/eventos/**, /api/v1/planos/**, /api/admin/expenses, /api/v1/admin/monitoring/**, /api/admin/exercises/**, /api/precos-pt/**, /api/registros-treino/**, /api/planosPagamento/**
               filters:
                 - JwtAuthFilter
+
 jwt:
   secret: ${JWT_SECRET:chave_secreta-principal-aneto-registo-horas-seguranca-2025-api-gateway}
